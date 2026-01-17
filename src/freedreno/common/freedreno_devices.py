@@ -1514,25 +1514,6 @@ a8xx_gen2 = GPUProps(
         has_salu_int_narrowing_quirk = True
 )
 
-a8xx_825 = GPUProps(
-    reg_size_vec4 = 96,
-    sysmem_vpc_attr_buf_size = 65536,
-    sysmem_vpc_pos_buf_size = 32768,
-    sysmem_vpc_bv_pos_buf_size = 16384,
-    sysmem_ccu_color_cache_fraction = CCUColorCacheFraction.HALF.value,
-    sysmem_per_ccu_color_cache_size = 64 * 1024,
-    sysmem_ccu_depth_cache_fraction = CCUColorCacheFraction.HALF.value,
-    sysmem_per_ccu_depth_cache_size = 64 * 1024,
-    gmem_vpc_attr_buf_size = 24576,
-    gmem_vpc_pos_buf_size = 12288,
-    gmem_vpc_bv_pos_buf_size = 16384,
-    gmem_ccu_color_cache_fraction = CCUColorCacheFraction.EIGHTH.value,
-    gmem_per_ccu_color_cache_size = 8 * 1024,
-    gmem_ccu_depth_cache_fraction = CCUColorCacheFraction.HALF.value,
-    gmem_per_ccu_depth_cache_size = 128 * 1024,
-    has_fs_tex_prefetch = False,
-)
-
 # For a8xx, the chicken bit and most other non-ctx reg
 # programming moves into the kernel, and what remains
 # should be easier to share between devices
@@ -1622,16 +1603,21 @@ add_gpus([
     ))
 
 
-# gen8_6_0
+a825_props = GPUProps(
+        has_ray_intersection = True,
+        storage_8bit = True,
+        storage_16bit = True,
+        sysmem_per_ccu_color_cache_size = 128 * 1024,
+        sysmem_per_ccu_depth_cache_size = 96 * 1024,
+    )
+
+# Adreno 825
 add_gpus([
         GPUId(chip_id=0x44030000, name="FD825"),
+        GPUId(chip_id=0xffff44030000, name="FD825"),
     ], A6xxGPUInfo(
         CHIP.A8XX,
-        [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen2, GPUProps(
-            sysmem_ccu_depth_cache_fraction = CCUColorCacheFraction.THREE_QUARTER.value,
-            sysmem_per_ccu_depth_cache_size = 96 * 1024,
-            ), # ?
-        ],
+        [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen2, a825_props],
         num_ccu = 4,
         num_slices = 2,
         tile_align_w = 64,
@@ -1646,7 +1632,6 @@ add_gpus([
         ),
         raw_magic_regs = a8xx_gen2_raw_magic_regs,
     ))
-
 
 
 # TODO: Properly fill all values for this GPU
