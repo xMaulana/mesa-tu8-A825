@@ -1612,6 +1612,7 @@ a825_props = GPUProps(
         ubwc_all_formats_compatible = True,
         ubwc_coherency_quirk = True,
         r8g8_faulty_fast_clear_quirk = True,
+        has_coherent_ubwc_flag_caches = True,
         sysmem_per_ccu_color_cache_size = 128 * 1024,
         sysmem_per_ccu_depth_cache_size = 96 * 1024,
         has_fs_tex_prefetch = True,
