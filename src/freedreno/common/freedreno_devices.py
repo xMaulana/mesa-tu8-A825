@@ -1609,9 +1609,9 @@ a825_props = GPUProps(
         storage_16bit = True,
         has_astc_hdr = True,
         ubwc_unorm_snorm_int_compatible = True,
-        ubwc_all_formats_compatible = False,
-        sysmem_per_ccu_color_cache_size = 128 * 1024,
-        sysmem_per_ccu_depth_cache_size = 96 * 1024,
+        ubwc_all_formats_compatible = True,
+        sysmem_per_ccu_color_cache_size = 96 * 1024,
+        sysmem_per_ccu_depth_cache_size = 64 * 1024,
     )
 
 # Adreno 825
