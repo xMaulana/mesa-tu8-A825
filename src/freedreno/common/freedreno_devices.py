@@ -1610,6 +1610,8 @@ a825_props = GPUProps(
         has_astc_hdr = True,
         ubwc_unorm_snorm_int_compatible = True,
         ubwc_all_formats_compatible = True,
+        ubwc_coherency_quirk = True,
+        r8g8_faulty_fast_clear_quirk = True,
         sysmem_per_ccu_color_cache_size = 112 * 1024,
         sysmem_per_ccu_depth_cache_size = 64 * 1024,
     )
