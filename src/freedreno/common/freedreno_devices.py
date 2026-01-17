@@ -1612,9 +1612,9 @@ a825_props = GPUProps(
         ubwc_all_formats_compatible = True,
         ubwc_coherency_quirk = True,
         r8g8_faulty_fast_clear_quirk = True,
-        sysmem_per_ccu_color_cache_size = 192 * 1024,
+        sysmem_per_ccu_color_cache_size = 128 * 1024,
         sysmem_per_ccu_depth_cache_size = 96 * 1024,
-        disable_gmem = True,
+        # disable_gmem = True,
     )
 
 # Adreno 825
@@ -1626,8 +1626,8 @@ add_gpus([
         [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen2, a825_props],
         num_ccu = 4,
         num_slices = 2,
-        tile_align_w = 64,
-        tile_align_h = 32,
+        tile_align_w = 32,
+        tile_align_h = 8,
         tile_max_w = 16384,
         tile_max_h = 16384,
         num_vsc_pipes = 32,
