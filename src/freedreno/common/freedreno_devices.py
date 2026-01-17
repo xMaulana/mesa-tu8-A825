@@ -1630,7 +1630,7 @@ add_gpus([
         [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen2, GPUProps(
             sysmem_ccu_depth_cache_fraction = CCUColorCacheFraction.THREE_QUARTER.value,
             sysmem_per_ccu_depth_cache_size = 96 * 1024,
-            ),
+            ), # ?
         ],
         num_ccu = 4,
         num_slices = 2,
