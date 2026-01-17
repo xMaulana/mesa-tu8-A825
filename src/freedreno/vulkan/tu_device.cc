@@ -1294,7 +1294,8 @@ tu_get_properties(struct tu_physical_device *pdevice,
    props->sampleLocationCoordinateRange[0] = SAMPLE_LOCATION_MIN;
    props->sampleLocationCoordinateRange[1] = SAMPLE_LOCATION_MAX;
    props->sampleLocationSubPixelBits = 4;
-   props->variableSampleLocations = true;
+   // fix
+   props->variableSampleLocations = pdevice->info->chip < A8XX;
 
    /* VK_KHR_vertex_attribute_divisor */
    props->maxVertexAttribDivisor = UINT32_MAX;
