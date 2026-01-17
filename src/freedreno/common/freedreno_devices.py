@@ -1607,7 +1607,7 @@ add_gpus([
 
 
 a825_props = GPUProps(
-        has_ray_intersection = True,
+        has_ray_intersection = False,
         storage_8bit = True,
         storage_16bit = True,
         has_astc_hdr = True,
@@ -1616,9 +1616,11 @@ a825_props = GPUProps(
         ubwc_coherency_quirk = True,
         r8g8_faulty_fast_clear_quirk = True,
         broken_ds_ubwc_quirk = True,
-        sysmem_per_ccu_color_cache_size = 128 * 1024,
-        sysmem_per_ccu_depth_cache_size = 96 * 1024,
-        has_fs_tex_prefetch = True,
+        sysmem_per_ccu_color_cache_size = 64 * 1024,
+        sysmem_per_ccu_depth_cache_size = 64 * 1024,
+        sysmem_ccu_color_cache_fraction = CCUColorCacheFraction.HALF.value,
+        sysmem_ccu_depth_cache_fraction = CCUColorCacheFraction.HALF.value,
+        has_fs_tex_prefetch = False,
     )
 
 # Adreno 825
