@@ -1616,10 +1616,8 @@ a825_props = GPUProps(
         ubwc_coherency_quirk = True,
         r8g8_faulty_fast_clear_quirk = True,
         broken_ds_ubwc_quirk = True,
-        sysmem_per_ccu_color_cache_size = 64 * 1024,
-        sysmem_per_ccu_depth_cache_size = 64 * 1024,
-        sysmem_ccu_color_cache_fraction = CCUColorCacheFraction.HALF.value,
-        sysmem_ccu_depth_cache_fraction = CCUColorCacheFraction.HALF.value,
+        sysmem_per_ccu_color_cache_size = 128 * 1024,
+        sysmem_per_ccu_depth_cache_size = 96 * 1024,
         has_fs_tex_prefetch = False,
     )
 
@@ -1634,10 +1632,10 @@ add_gpus([
         num_slices = 2,
         tile_align_w = 64,
         tile_align_h = 32,
-        tile_max_w = 16384,
-        tile_max_h = 16384,
+        tile_max_w = 8192,
+        tile_max_h = 8192,
         num_vsc_pipes = 32,
-        cs_shared_mem_size = 32 * 1024,
+        cs_shared_mem_size = 16 * 1024,
         wave_granularity = 2,
         fibers_per_sp = 128 * 2 * 16,
         magic_regs = dict(
