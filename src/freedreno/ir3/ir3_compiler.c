@@ -6,8 +6,8 @@
  *    Rob Clark <robclark@freedesktop.org>
  */
 
-#include "util/u_call_once.h"
 #include "util/ralloc.h"
+#include "util/u_call_once.h"
 
 #include "freedreno_dev_info.h"
 
@@ -59,29 +59,31 @@ const char *ir3_shader_override_path = NULL;
 struct ir3_gpu_profile
 ir3_get_gpu_profile(uint32_t chip_id)
 {
-    switch (chip_id) {
-    case 0x44010000: /* Adreno 810 */
-        return (struct ir3_gpu_profile){90, 4, 4, false};
-    case 0x44030000: /* Adreno 825 */
-        return (struct ir3_gpu_profile){85, 8, 8, true};
-    case 0x44030A20: /* Adreno 829 */
-        return (struct ir3_gpu_profile){80, 10, 8, true};
-    case 0x44050001: /* Adreno 830 */
-        return (struct ir3_gpu_profile){75, 16, 12, true};
-    case 0x43050A31: /* Adreno 830 variant */
-        return (struct ir3_gpu_profile){75, 16, 12, true};
-    case 0x43050A32: /* Adreno 840 */
-        return (struct ir3_gpu_profile){70, 20, 16, true};
-    default:
-        return (struct ir3_gpu_profile){85, 8, 8, false};
-    }
+   switch (chip_id) {
+   case 0x44010000: /* Adreno 810 */
+      return (struct ir3_gpu_profile){90, 4, 4, false};
+   case 0x44030000: /* Adreno 825 — Optimized for 2-slice, 4-CCU config */
+   case 0x44030001: /* Adreno 825 KGSL variant */
+      return (struct ir3_gpu_profile){90, 10, 10, true};
+   case 0x44030A20: /* Adreno 829 */
+      return (struct ir3_gpu_profile){80, 10, 8, true};
+   case 0x44050001: /* Adreno 830 */
+      return (struct ir3_gpu_profile){75, 16, 12, true};
+   case 0x43050A31: /* Adreno 830 variant */
+      return (struct ir3_gpu_profile){75, 16, 12, true};
+   case 0x43050A32: /* Adreno 840 */
+      return (struct ir3_gpu_profile){70, 20, 16, true};
+   default:
+      return (struct ir3_gpu_profile){85, 8, 8, false};
+   }
 }
 
 uint32_t
 ir3_effective_reg_size(struct ir3_compiler *compiler)
 {
-    struct ir3_gpu_profile profile = ir3_get_gpu_profile(compiler->dev_id->chip_id);
-    return compiler->reg_size_vec4 * profile.reg_efficiency / 100;
+   struct ir3_gpu_profile profile =
+      ir3_get_gpu_profile(compiler->dev_id->chip_id);
+   return compiler->reg_size_vec4 * profile.reg_efficiency / 100;
 }
 
 void
@@ -108,8 +110,7 @@ ir3_nir_lower_convert_alu_types(nir_intrinsic_instr *conv)
     * case, the @convert_alu_types will be lowered trivially to a single
     * alu opc, so no need to preserve the @convert_alu_types for backend.
     */
-   if (rounding == nir_rounding_mode_undef &&
-       !nir_intrinsic_saturate(conv))
+   if (rounding == nir_rounding_mode_undef && !nir_intrinsic_saturate(conv))
       return true;
 
    nir_alu_type src_base_type = nir_alu_type_get_base_type(src_type);
@@ -122,8 +123,8 @@ ir3_nir_lower_convert_alu_types(nir_intrinsic_instr *conv)
       return true;
 
    /* Float widening does not round: */
-   if ((src_base_type == nir_type_float) && (dest_base_type == nir_type_float) &&
-       (dest_bit_size > src_bit_size))
+   if ((src_base_type == nir_type_float) &&
+       (dest_base_type == nir_type_float) && (dest_bit_size > src_bit_size))
       return true;
 
    /* int64 needs nir_lower_int64, as hw does not natively support this: */
@@ -234,7 +235,6 @@ static const nir_shader_compiler_options ir3_base_options = {
    .lower_convert_alu_types = ir3_nir_lower_convert_alu_types,
 };
 
-
 static void
 __debug_init(void)
 {
@@ -282,7 +282,8 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
       ir3_shader_debug |= IR3_DBG_NODESCPREFETCH;
 
    /* TODO see if older GPU's were different here */
-   compiler->branchstack_size = dev_info->props.has_dual_wave_dispatch ? 512 : 256;
+   compiler->branchstack_size =
+      dev_info->props.has_dual_wave_dispatch ? 512 : 256;
    compiler->max_branchstack = 64;
 
    compiler->max_variable_workgroup_size = 1024;
@@ -304,11 +305,11 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
        * else, and separate limits. There seems to be a shared limit, but
        * it's higher than the vert or frag limits.
        *
-       * Also, according to the observation on a630/a650/a660, max_const_pipeline
-       * has to be 512 when all geometry stages are present. Otherwise a gpu hang
-       * happens. Accordingly maximum safe size for each stage should be under
-       * (max_const_pipeline / 5 (stages)) with 4 vec4's alignment considered for
-       * const files.
+       * Also, according to the observation on a630/a650/a660,
+       * max_const_pipeline has to be 512 when all geometry stages are present.
+       * Otherwise a gpu hang happens. Accordingly maximum safe size for each
+       * stage should be under (max_const_pipeline / 5 (stages)) with 4 vec4's
+       * alignment considered for const files.
        *
        * Only when VS and FS stages are present, the limit is 640.
        *
@@ -361,7 +362,11 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
 
       compiler->has_alias_tex = (compiler->gen >= 7);
 
-      if (compiler->gen == 7) {
+      if (compiler->gen >= 8) {
+         compiler->delay_slots.alu_to_alu = 1;
+         compiler->delay_slots.non_alu = 4;
+         compiler->delay_slots.cat3_src2_read = 0;
+      } else if (compiler->gen == 7) {
          compiler->delay_slots.alu_to_alu = 2;
          compiler->delay_slots.non_alu = 5;
          compiler->delay_slots.cat3_src2_read = 1;
@@ -381,9 +386,10 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
    if (dev_info->compute_lb_size) {
       compiler->compute_lb_size = dev_info->compute_lb_size;
    } else {
-      compiler->compute_lb_size =
-         compiler->max_const_compute * 16 /* bytes/vec4 */ *
-         compiler->info->wave_granularity + compiler->info->cs_shared_mem_size;
+      compiler->compute_lb_size = compiler->max_const_compute *
+                                     16 /* bytes/vec4 */ *
+                                     compiler->info->wave_granularity +
+                                  compiler->info->cs_shared_mem_size;
    }
 
    /* This is just a guess for a4xx. */
@@ -434,7 +440,8 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
    if (options->push_ubo_with_preamble)
       assert(compiler->has_preamble);
 
-   /* Set up nir shader compiler options, using device-specific overrides of our base settings. */
+   /* Set up nir shader compiler options, using device-specific overrides of our
+    * base settings. */
    compiler->nir_options = ir3_base_options;
    compiler->nir_options.has_iadd3 = dev_info->props.has_sad;
 
@@ -465,7 +472,7 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
       /* keep in sync with vk_properties */
       compiler->nir_options.max_workgroup_count[0] =
          compiler->nir_options.max_workgroup_count[1] =
-         compiler->nir_options.max_workgroup_count[2] = 65535;
+            compiler->nir_options.max_workgroup_count[2] = 65535;
       compiler->nir_options.max_workgroup_invocations =
          dev_info->threadsize_base * dev_info->max_waves;
       if ((compiler->gen >= 6) && dev_info->props.supports_double_threadsize)
@@ -476,16 +483,16 @@ ir3_compiler_create(struct fd_device *dev, const struct fd_dev_id *dev_id,
       compiler->nir_options.lower_base_vertex = true;
    }
 
-   /* 16-bit ALU op generation is mostly controlled by frontend compiler options, but
-    * this core NIR option enables some optimizations of 16-bit operations.
+   /* 16-bit ALU op generation is mostly controlled by frontend compiler options,
+    * but this core NIR option enables some optimizations of 16-bit operations.
     */
    if (compiler->gen >= 5 && !(ir3_shader_debug & IR3_DBG_NOFP16))
       compiler->nir_options.support_16bit_alu = true;
 
    compiler->nir_options.support_indirect_inputs =
-      BITFIELD_BIT(MESA_SHADER_TESS_CTRL) |
-      BITFIELD_BIT(MESA_SHADER_TESS_EVAL);
-   compiler->nir_options.support_indirect_outputs = (uint8_t)BITFIELD_MASK(MESA_SHADER_STAGES);
+      BITFIELD_BIT(MESA_SHADER_TESS_CTRL) | BITFIELD_BIT(MESA_SHADER_TESS_EVAL);
+   compiler->nir_options.support_indirect_outputs =
+      (uint8_t)BITFIELD_MASK(MESA_SHADER_STAGES);
    compiler->nir_options.max_offset_shift = ir3_nir_max_offset_shift;
 
    if (!options->disable_cache)
