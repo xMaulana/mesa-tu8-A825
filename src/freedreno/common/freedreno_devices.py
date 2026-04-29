@@ -1423,33 +1423,14 @@ add_gpus([
         raw_magic_regs = a8xx_base_raw_magic_regs,
     ))
 
-# gen8_6_0 Adreno 825
+# gen8_6_0 Adreno 825 — Performance-tuned, low memory footprint
 add_gpus([
         GPUId(chip_id=0x44030000, name="Adreno (TM) 825"),
         GPUId(chip_id=0x44030001, name="Adreno (TM) 825"), # KGSL variant
         GPUId(chip_id=0xffff44030000, name="Adreno (TM) 825"), # Default no-speedbin fallback
     ], A6xxGPUInfo(
         CHIP.A8XX,
-        [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen1, GPUProps(
-            gmem_ccu_color_cache_fraction = CCUColorCacheFraction.HALF.value,
-            gmem_per_ccu_color_cache_size = 128 * 1024,
-            gmem_ccu_depth_cache_fraction = CCUColorCacheFraction.THREE_QUARTER.value,
-            gmem_per_ccu_depth_cache_size = 128 * 1024,
-
-            sysmem_ccu_color_cache_fraction = CCUColorCacheFraction.THREE_QUARTER.value,
-            sysmem_per_ccu_color_cache_size = 96 * 1024,
-            sysmem_ccu_depth_cache_fraction = CCUColorCacheFraction.THREE_QUARTER.value,
-            sysmem_per_ccu_depth_cache_size = 128 * 1024,
-
-            gmem_vpc_attr_buf_size = 49152,
-            gmem_vpc_pos_buf_size = 24576,
-            gmem_vpc_bv_pos_buf_size = 32768,
-
-            disable_gmem = False,
-            gmem_size = 2 * 1024 * 1024,
-            shading_rate_matches_vk = True,
-            enable_tp_ubwc_flag_hint = True,
-        )],
+        [a7xx_base, a7xx_gen3, a8xx_base, a8xx_gen1],
         num_ccu = 4,
         num_slices = 2,
         tile_align_w = 64,
